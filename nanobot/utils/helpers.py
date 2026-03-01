@@ -20,7 +20,7 @@ def get_workspace_path(workspace: str | None = None) -> Path:
     Get the workspace path.
     
     Args:
-        workspace: Optional workspace path. Defaults to ~/.nanobot/workspace.
+        workspace: Optional workspace path. Defaults to ./workspace or ~/.nanobot/workspace.
     
     Returns:
         Expanded and ensured workspace path.
@@ -28,7 +28,12 @@ def get_workspace_path(workspace: str | None = None) -> Path:
     if workspace:
         path = Path(workspace).expanduser()
     else:
-        path = Path.home() / ".nanobot" / "workspace"
+        # 优先使用项目根目录的 workspace
+        project_workspace = Path.cwd() / "workspace"
+        if project_workspace.exists():
+            path = project_workspace
+        else:
+            path = Path.home() / ".nanobot" / "workspace"
     return ensure_dir(path)
 
 

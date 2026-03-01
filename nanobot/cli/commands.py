@@ -162,6 +162,11 @@ def onboard():
     
     config_path = get_config_path()
     
+    # 显示将要创建的位置
+    console.print(f"\n[cyan]Initializing nanobot in:[/cyan]")
+    console.print(f"  Config: {config_path}")
+    console.print(f"  Workspace: {get_workspace_path()}\n")
+    
     if config_path.exists():
         console.print(f"[yellow]Config already exists at {config_path}[/yellow]")
         console.print("  [bold]y[/bold] = overwrite with defaults (existing values will be lost)")
@@ -175,7 +180,10 @@ def onboard():
             save_config(config)
             console.print(f"[green]✓[/green] Config refreshed at {config_path} (existing values preserved)")
     else:
-        save_config(Config())
+        # 创建默认配置，workspace 使用相对路径
+        config = Config()
+        config.agents.defaults.workspace = "./workspace"
+        save_config(config)
         console.print(f"[green]✓[/green] Created config at {config_path}")
     
     # Create workspace
@@ -190,7 +198,7 @@ def onboard():
     
     console.print(f"\n{__logo__} nanobot is ready!")
     console.print("\nNext steps:")
-    console.print("  1. Add your API key to [cyan]~/.nanobot/config.json[/cyan]")
+    console.print(f"  1. Add your API key to [cyan]{config_path}[/cyan]")
     console.print("     Get one at: https://openrouter.ai/keys")
     console.print("  2. Chat: [cyan]nanobot agent -m \"Hello!\"[/cyan]")
     console.print("\n[dim]Want Telegram/WhatsApp? See: https://github.com/HKUDS/nanobot#-chat-apps[/dim]")
@@ -255,7 +263,7 @@ def _make_provider(config: Config):
     spec = find_by_name(provider_name)
     if not model.startswith("bedrock/") and not (p and p.api_key) and not (spec and spec.is_oauth):
         console.print("[red]Error: No API key configured.[/red]")
-        console.print("Set one in ~/.nanobot/config.json under providers section")
+        console.print("Set one in ./config.json under providers section")
         raise typer.Exit(1)
 
     return LiteLLMProvider(

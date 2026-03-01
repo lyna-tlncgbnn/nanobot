@@ -8,6 +8,13 @@ from nanobot.config.schema import Config
 
 def get_config_path() -> Path:
     """Get the default configuration file path."""
+    # 总是优先使用项目根目录的配置文件路径
+    # 即使文件不存在，也返回项目路径（用于创建新配置）
+    return Path.cwd() / "config.json"
+
+
+def get_global_config_path() -> Path:
+    """Get the global configuration file path in user home directory."""
     return Path.home() / ".nanobot" / "config.json"
 
 
@@ -27,7 +34,20 @@ def load_config(config_path: Path | None = None) -> Config:
     Returns:
         Loaded configuration object.
     """
-    path = config_path or get_config_path()
+    if config_path:
+        path = config_path
+    else:
+        # 尝试加载配置：优先项目目录，回退到全局
+        project_config = Path.cwd() / "config.json"
+        global_config = get_global_config_path()
+        
+        if project_config.exists():
+            path = project_config
+        elif global_config.exists():
+            path = global_config
+        else:
+            # 都不存在，返回默认配置
+            return Config()
 
     if path.exists():
         try:
