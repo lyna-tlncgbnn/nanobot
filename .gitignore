@@ -21,6 +21,5 @@ poetry.lock
 botpy.log
 tests/
 
-# nanobot 本地数据（不提交会话记录和历史）
-workspace/sessions/
-workspace/memory/HISTORY.md
+# nanobot 本地数据（运行时数据，不提交）
+workspace/
