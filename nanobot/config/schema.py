@@ -262,6 +262,22 @@ class ExecToolConfig(Base):
     timeout: int = 60
 
 
+class BrowserAgentConfig(Base):
+    """browser-use subprocess tool configuration."""
+
+    python_path: str = ""  # nanobot 用它来启动 browser-use 独立 Python 进程
+    script_path: str = ""  # nanobot 实际调用的 runner 脚本路径
+    model: str = ""  # 传给 browser-use 的默认模型名，由 runner 消费
+    api_key: str = ""  # 传给 browser-use 的模型 API key，由 runner 消费
+    api_base: str = ""  # 传给 browser-use 的模型 base URL，由 runner 消费
+    extra_headers: dict[str, str] | None = None  # 传给 ChatOpenAI(default_headers=...) 的额外请求头
+    timeout: int = 180  # nanobot 等待 browser-use 子进程返回结果的超时时间（秒）
+    download_dir: str = ""  # 传给 browser-use Browser(...) 的下载目录
+    headless: bool = False  # 传给 browser-use Browser(...) 的默认无头模式
+    user_data_dir: str = ""  # 预留字段：未来做 profile/session 复用；当前 runner 未实际使用
+    cdp_url: str = ""  # 预留字段：未来做连接已打开浏览器；当前 runner 未实际使用
+
+
 class MCPServerConfig(Base):
     """MCP server connection configuration (stdio or HTTP)."""
 
@@ -278,6 +294,7 @@ class ToolsConfig(Base):
 
     web: WebToolsConfig = Field(default_factory=WebToolsConfig)
     exec: ExecToolConfig = Field(default_factory=ExecToolConfig)
+    browser_agent: BrowserAgentConfig = Field(default_factory=BrowserAgentConfig)
     restrict_to_workspace: bool = False  # If true, restrict all tool access to workspace directory
     mcp_servers: dict[str, MCPServerConfig] = Field(default_factory=dict)
 

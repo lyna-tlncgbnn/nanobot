@@ -14,6 +14,7 @@ from loguru import logger
 from nanobot.agent.context import ContextBuilder
 from nanobot.agent.memory import MemoryStore
 from nanobot.agent.subagent import SubagentManager
+from nanobot.agent.tools.browser_agent import BrowserAgentTool
 from nanobot.agent.tools.cron import CronTool
 from nanobot.agent.tools.filesystem import EditFileTool, ListDirTool, ReadFileTool, WriteFileTool
 from nanobot.agent.tools.message import MessageTool
@@ -60,10 +61,18 @@ class AgentLoop:
         session_manager: SessionManager | None = None,
         mcp_servers: dict | None = None,
         channels_config: ChannelsConfig | None = None,
+        browser_agent_config = None,
+        browser_agent_api_key: str | None = None,
+        browser_agent_api_base: str | None = None,
+        browser_agent_extra_headers: dict[str, str] | None = None,
     ):
         from nanobot.config.schema import ExecToolConfig
         self.bus = bus
         self.channels_config = channels_config
+        self.browser_agent_config = browser_agent_config
+        self.browser_agent_api_key = browser_agent_api_key
+        self.browser_agent_api_base = browser_agent_api_base
+        self.browser_agent_extra_headers = browser_agent_extra_headers or {}
         self.provider = provider
         self.workspace = workspace
         self.model = model or provider.get_default_model()
@@ -113,6 +122,20 @@ class AgentLoop:
         ))
         self.tools.register(WebSearchTool(api_key=self.brave_api_key))
         self.tools.register(WebFetchTool())
+        if self.browser_agent_config and self.browser_agent_config.python_path and self.browser_agent_config.script_path:
+            self.tools.register(BrowserAgentTool(
+                python_path=self.browser_agent_config.python_path,
+                script_path=self.browser_agent_config.script_path,
+                model=self.browser_agent_config.model or self.model,
+                api_key=self.browser_agent_api_key,
+                api_base=self.browser_agent_api_base,
+                extra_headers=self.browser_agent_extra_headers,
+                timeout=self.browser_agent_config.timeout,
+                download_dir=self.browser_agent_config.download_dir or None,
+                headless=self.browser_agent_config.headless,
+                user_data_dir=self.browser_agent_config.user_data_dir or None,
+                cdp_url=self.browser_agent_config.cdp_url or None,
+            ))
         self.tools.register(MessageTool(send_callback=self.bus.publish_outbound))
         self.tools.register(SpawnTool(manager=self.subagents))
         if self.cron_service:

@@ -304,6 +304,7 @@ def gateway(
     config = load_config()
     bus = MessageBus()
     provider = _make_provider(config)
+    provider_cfg = config.get_provider(config.agents.defaults.model)
     session_manager = SessionManager(config.workspace_path)
     
     # Create cron service first (callback set after agent creation)
@@ -311,6 +312,13 @@ def gateway(
     cron = CronService(cron_store_path)
     
     # Create agent with cron service
+    browser_agent_model = config.tools.browser_agent.model or config.agents.defaults.model
+    browser_agent_api_key = config.tools.browser_agent.api_key or (provider_cfg.api_key if provider_cfg else None)
+    browser_agent_api_base = config.tools.browser_agent.api_base or config.get_api_base(browser_agent_model)
+    browser_agent_extra_headers = config.tools.browser_agent.extra_headers
+    if browser_agent_extra_headers is None and browser_agent_model == config.agents.defaults.model:
+        browser_agent_extra_headers = provider_cfg.extra_headers if provider_cfg else None
+
     agent = AgentLoop(
         bus=bus,
         provider=provider,
@@ -327,6 +335,10 @@ def gateway(
         session_manager=session_manager,
         mcp_servers=config.tools.mcp_servers,
         channels_config=config.channels,
+        browser_agent_config=config.tools.browser_agent,
+        browser_agent_api_key=browser_agent_api_key,
+        browser_agent_api_base=browser_agent_api_base,
+        browser_agent_extra_headers=browser_agent_extra_headers,
     )
     
     # Set cron callback (needs agent)
@@ -458,6 +470,7 @@ def agent(
     
     bus = MessageBus()
     provider = _make_provider(config)
+    provider_cfg = config.get_provider(config.agents.defaults.model)
 
     # Create cron service for tool usage (no callback needed for CLI unless running)
     cron_store_path = get_data_dir() / "cron" / "jobs.json"
@@ -468,6 +481,13 @@ def agent(
     else:
         logger.disable("nanobot")
     
+    browser_agent_model = config.tools.browser_agent.model or config.agents.defaults.model
+    browser_agent_api_key = config.tools.browser_agent.api_key or (provider_cfg.api_key if provider_cfg else None)
+    browser_agent_api_base = config.tools.browser_agent.api_base or config.get_api_base(browser_agent_model)
+    browser_agent_extra_headers = config.tools.browser_agent.extra_headers
+    if browser_agent_extra_headers is None and browser_agent_model == config.agents.defaults.model:
+        browser_agent_extra_headers = provider_cfg.extra_headers if provider_cfg else None
+
     agent_loop = AgentLoop(
         bus=bus,
         provider=provider,
@@ -483,6 +503,10 @@ def agent(
         restrict_to_workspace=config.tools.restrict_to_workspace,
         mcp_servers=config.tools.mcp_servers,
         channels_config=config.channels,
+        browser_agent_config=config.tools.browser_agent,
+        browser_agent_api_key=browser_agent_api_key,
+        browser_agent_api_base=browser_agent_api_base,
+        browser_agent_extra_headers=browser_agent_extra_headers,
     )
     
     # Show spinner when logs are off (no output to miss); skip when logs are on
@@ -958,7 +982,15 @@ def cron_run(
 
     config = load_config()
     provider = _make_provider(config)
+    provider_cfg = config.get_provider(config.agents.defaults.model)
     bus = MessageBus()
+    browser_agent_model = config.tools.browser_agent.model or config.agents.defaults.model
+    browser_agent_api_key = config.tools.browser_agent.api_key or (provider_cfg.api_key if provider_cfg else None)
+    browser_agent_api_base = config.tools.browser_agent.api_base or config.get_api_base(browser_agent_model)
+    browser_agent_extra_headers = config.tools.browser_agent.extra_headers
+    if browser_agent_extra_headers is None and browser_agent_model == config.agents.defaults.model:
+        browser_agent_extra_headers = provider_cfg.extra_headers if provider_cfg else None
+
     agent_loop = AgentLoop(
         bus=bus,
         provider=provider,
@@ -973,6 +1005,10 @@ def cron_run(
         restrict_to_workspace=config.tools.restrict_to_workspace,
         mcp_servers=config.tools.mcp_servers,
         channels_config=config.channels,
+        browser_agent_config=config.tools.browser_agent,
+        browser_agent_api_key=browser_agent_api_key,
+        browser_agent_api_base=browser_agent_api_base,
+        browser_agent_extra_headers=browser_agent_extra_headers,
     )
 
     store_path = get_data_dir() / "cron" / "jobs.json"
