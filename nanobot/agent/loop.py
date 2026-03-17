@@ -198,6 +198,7 @@ class AgentLoop:
         self,
         initial_messages: list[dict],
         on_progress: Callable[..., Awaitable[None]] | None = None,
+        on_message: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
     ) -> tuple[str | None, list[str], list[dict]]:
         """Run the agent iteration loop. Returns (final_content, tools_used, messages)."""
         messages = initial_messages
@@ -238,6 +239,10 @@ class AgentLoop:
                     messages, response.content, tool_call_dicts,
                     reasoning_content=response.reasoning_content,
                 )
+                if on_message:
+                    # Web streaming uses this hook to forward each newly-created
+                    # assistant/tool message without changing existing CLI/channel flows.
+                    await on_message(messages[-1])
 
                 for tool_call in response.tool_calls:
                     tools_used.append(tool_call.name)
@@ -247,8 +252,21 @@ class AgentLoop:
                     messages = self.context.add_tool_result(
                         messages, tool_call.id, tool_call.name, result
                     )
+                    if on_message:
+                        # This callback is additive: when absent, AgentLoop keeps the
+                        # original behavior for CLI, QQ, gateway, and all other callers.
+                        await on_message(messages[-1])
             else:
                 final_content = self._strip_think(response.content)
+                messages = self.context.add_assistant_message(
+                    messages,
+                    final_content,
+                    reasoning_content=response.reasoning_content,
+                )
+                if on_message:
+                    # Emit the final assistant message as soon as it exists in-memory.
+                    # Session persistence still happens later through the normal save path.
+                    await on_message(messages[-1])
                 break
 
         if final_content is None and iteration >= self.max_iterations:
@@ -321,6 +339,7 @@ class AgentLoop:
         msg: InboundMessage,
         session_key: str | None = None,
         on_progress: Callable[[str], Awaitable[None]] | None = None,
+        on_message: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
     ) -> OutboundMessage | None:
         """Process a single inbound message and return the response."""
         # System messages: parse origin from chat_id ("channel:chat_id")
@@ -336,7 +355,7 @@ class AgentLoop:
                 history=history,
                 current_message=msg.content, channel=channel, chat_id=chat_id,
             )
-            final_content, _, all_msgs = await self._run_agent_loop(messages)
+            final_content, _, all_msgs = await self._run_agent_loop(messages, on_message=on_message)
             self._save_turn(session, all_msgs, 1 + len(history))
             self.sessions.save(session)
             return OutboundMessage(channel=channel, chat_id=chat_id,
@@ -424,7 +443,9 @@ class AgentLoop:
             ))
 
         final_content, _, all_msgs = await self._run_agent_loop(
-            initial_messages, on_progress=on_progress or _bus_progress,
+            initial_messages,
+            on_progress=on_progress or _bus_progress,
+            on_message=on_message,
         )
 
         if final_content is None:
@@ -474,9 +495,15 @@ class AgentLoop:
         channel: str = "cli",
         chat_id: str = "direct",
         on_progress: Callable[[str], Awaitable[None]] | None = None,
+        on_message: Callable[[dict[str, Any]], Awaitable[None]] | None = None,
     ) -> str:
         """Process a message directly (for CLI or cron usage)."""
         await self._connect_mcp()
         msg = InboundMessage(channel=channel, sender_id="user", chat_id=chat_id, content=content)
-        response = await self._process_message(msg, session_key=session_key, on_progress=on_progress)
+        response = await self._process_message(
+            msg,
+            session_key=session_key,
+            on_progress=on_progress,
+            on_message=on_message,
+        )
         return response.content if response else ""

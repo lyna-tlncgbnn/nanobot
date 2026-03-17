@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4efe3;
+  --foreground: #1d1a14;
+  --panel: #fffaf1;
+  --panel-strong: #f0e7d4;
+  --panel-muted: #eadfc7;
+  --border: rgba(53, 40, 17, 0.12);
+  --accent: #b46a2c;
+  --accent-foreground: #fff7ed;
+  --muted-foreground: #6f6249;
+  --ring: rgba(180, 106, 44, 0.34);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-panel-muted: var(--panel-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-ring: var(--ring);
+  --font-sans: "Segoe UI Variable Text", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+  --font-mono: "Cascadia Mono", "IBM Plex Mono", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background:
+    radial-gradient(circle at top left, rgba(210, 151, 92, 0.26), transparent 24%),
+    radial-gradient(circle at right 20%, rgba(112, 80, 36, 0.12), transparent 18%),
+    linear-gradient(180deg, #f8f2e7 0%, #f4efe3 50%, #efe5d3 100%);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(180, 106, 44, 0.18);
+}
+
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::before {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  content: "";
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent);
+}

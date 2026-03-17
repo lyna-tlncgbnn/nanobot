@@ -281,6 +281,24 @@ def _make_provider(config: Config):
 
 
 @app.command()
+def api(
+    host: str = typer.Option("127.0.0.1", "--host", help="API bind host"),
+    port: int = typer.Option(8000, "--port", "-p", help="API bind port"),
+    reload: bool = typer.Option(False, "--reload", help="Enable auto reload for development"),
+):
+    """Start the nanobot HTTP API server."""
+    try:
+        import uvicorn
+    except ImportError:
+        console.print("[red]Error: FastAPI server dependencies are not installed.[/red]")
+        console.print("Run: pip install -e .")
+        raise typer.Exit(1)
+
+    console.print(f"{__logo__} Starting nanobot API on http://{host}:{port} ...")
+    uvicorn.run("nanobot.api.server:app", host=host, port=port, reload=reload)
+
+
+@app.command()
 def gateway(
     port: int = typer.Option(18790, "--port", "-p", help="Gateway port"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
