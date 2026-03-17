@@ -1,5 +1,6 @@
 """Utility functions for nanobot."""
 
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -40,6 +41,34 @@ def get_workspace_path(workspace: str | None = None) -> Path:
 def get_sessions_path() -> Path:
     """Get the sessions storage directory."""
     return ensure_dir(get_data_path() / "sessions")
+
+
+def get_cron_store_path(workspace: str | Path | None = None) -> Path:
+    """Get the cron job store path under the active workspace.
+
+    If a legacy global cron store exists and the workspace-scoped store does not,
+    migrate it automatically to keep existing jobs.
+    """
+    ws = workspace if isinstance(workspace, Path) else get_workspace_path(workspace)
+    ws = ensure_dir(ws)
+    store_path = ensure_dir(ws / "cron") / "jobs.json"
+    legacy_path = get_data_path() / "cron" / "jobs.json"
+
+    if not store_path.exists() and legacy_path.exists():
+        try:
+            shutil.move(str(legacy_path), str(store_path))
+        except Exception:
+            # Fall back to the legacy path if migration fails.
+            return legacy_path
+
+    return store_path
+
+
+def get_cron_history_path(workspace: str | Path | None = None) -> Path:
+    """Get the cron execution history file path under the active workspace."""
+    ws = workspace if isinstance(workspace, Path) else get_workspace_path(workspace)
+    ws = ensure_dir(ws)
+    return ensure_dir(ws / "cron") / "history.jsonl"
 
 
 def get_skills_path(workspace: Path | None = None) -> Path:

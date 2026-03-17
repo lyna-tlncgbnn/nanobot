@@ -1,8 +1,10 @@
 """CLI commands for nanobot."""
 
 import asyncio
+import json
 import os
 import signal
+from datetime import datetime
 from pathlib import Path
 import select
 import sys
@@ -304,14 +306,19 @@ def gateway(
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ):
     """Start the nanobot gateway."""
-    from nanobot.config.loader import load_config, get_data_dir
+    import uvicorn
+    from loguru import logger
+
+    from nanobot.config.loader import load_config
     from nanobot.bus.queue import MessageBus
     from nanobot.agent.loop import AgentLoop
     from nanobot.channels.manager import ChannelManager
     from nanobot.session.manager import SessionManager
     from nanobot.cron.service import CronService
     from nanobot.cron.types import CronJob
+    from nanobot.gateway.server import create_gateway_app
     from nanobot.heartbeat.service import HeartbeatService
+    from nanobot.utils.helpers import get_cron_history_path, get_cron_store_path
     
     if verbose:
         import logging
@@ -326,8 +333,9 @@ def gateway(
     session_manager = SessionManager(config.workspace_path)
     
     # Create cron service first (callback set after agent creation)
-    cron_store_path = get_data_dir() / "cron" / "jobs.json"
+    cron_store_path = get_cron_store_path(config.workspace_path)
     cron = CronService(cron_store_path)
+    cron_history_path = get_cron_history_path(config.workspace_path)
     
     # Create agent with cron service
     browser_agent_model = config.tools.browser_agent.model or config.agents.defaults.model
@@ -358,6 +366,38 @@ def gateway(
         browser_agent_api_base=browser_agent_api_base,
         browser_agent_extra_headers=browser_agent_extra_headers,
     )
+
+    def _append_cron_history(
+        job: CronJob,
+        *,
+        status: str,
+        response: str | None = None,
+        error: str | None = None,
+    ) -> None:
+        """把每次 cron 执行结果追加写入 workspace 级别的 history.jsonl。"""
+        executed_at_ms = int(datetime.now().timestamp() * 1000)
+        scheduled_for_ms = job.state.next_run_at_ms
+        item = {
+            "run_id": f"{job.id}:{executed_at_ms}",
+            "job_id": job.id,
+            "job_name": job.name,
+            "message": job.payload.message,
+            "channel": job.payload.channel,
+            "target": job.payload.to,
+            "schedule_kind": job.schedule.kind,
+            "scheduled_for_ms": scheduled_for_ms,
+            "scheduled_for": datetime.fromtimestamp(scheduled_for_ms / 1000).isoformat() if scheduled_for_ms else None,
+            "executed_at_ms": executed_at_ms,
+            "executed_at": datetime.fromtimestamp(executed_at_ms / 1000).isoformat(),
+            "status": status,
+            "response": response,
+            "response_preview": (response or "")[:200] or None,
+            "error": error,
+            "cron_session_key": f"cron:{job.id}",
+        }
+        cron_history_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(cron_history_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
     
     # Set cron callback (needs agent)
     async def on_cron_job(job: CronJob) -> str | None:
@@ -368,18 +408,42 @@ def gateway(
             channel=job.payload.channel or "cli",
             chat_id=job.payload.to or "direct",
         )
+        _append_cron_history(job, status="ok", response=response)
         if job.payload.deliver and job.payload.to:
-            from nanobot.bus.events import OutboundMessage
-            await bus.publish_outbound(OutboundMessage(
-                channel=job.payload.channel or "cli",
-                chat_id=job.payload.to,
-                content=response or ""
-            ))
+            target_channel = job.payload.channel or "cli"
+            if target_channel == "web":
+                # web 会话不属于 ChannelManager 可投递的真实外部渠道。
+                # 定时任务执行后，直接把结果写回原始 web session，
+                # 这样前端就能通过现有的 session API 读到这条消息。
+                session = session_manager.get_or_create(job.payload.to)
+                session.add_message(
+                    "assistant",
+                    response or "",
+                    name="cron",
+                    metadata={"source": "cron", "job_id": job.id},
+                )
+                session_manager.save(session)
+            else:
+                from nanobot.bus.events import OutboundMessage
+                await bus.publish_outbound(OutboundMessage(
+                    channel=target_channel,
+                    chat_id=job.payload.to,
+                    content=response or ""
+                ))
         return response
     cron.on_job = on_cron_job
     
     # Create channel manager
     channels = ChannelManager(config, bus)
+    gateway_app = create_gateway_app(cron, cron_history_path)
+    gateway_server = uvicorn.Server(
+        uvicorn.Config(
+            gateway_app,
+            host=config.gateway.host,
+            port=port,
+            log_level="info" if verbose else "warning",
+        )
+    )
 
     def _pick_heartbeat_target() -> tuple[str, str]:
         """Pick a routable channel/chat target for heartbeat-triggered messages."""
@@ -442,18 +506,35 @@ def gateway(
         console.print(f"[green]✓[/green] Cron: {cron_status['jobs']} scheduled jobs")
     
     console.print(f"[green]✓[/green] Heartbeat: every {hb_cfg.interval_s}s")
+
+    async def run_gateway_http() -> None:
+        """常驻运行 gateway 内部 jobs 接口，异常退出后自动拉起。"""
+        while True:
+            gateway_server.should_exit = False
+            try:
+                logger.info("Gateway HTTP service starting on {}:{}", config.gateway.host, port)
+                await gateway_server.serve()
+                if gateway_server.should_exit:
+                    logger.info("Gateway HTTP service stopped by shutdown signal")
+                    return
+                logger.warning("Gateway HTTP service exited unexpectedly, restarting in 2s")
+            except Exception as exc:
+                logger.exception("Gateway HTTP service crashed: {}", exc)
+            await asyncio.sleep(2)
     
     async def run():
         try:
             await cron.start()
             await heartbeat.start()
             await asyncio.gather(
+                run_gateway_http(),
                 agent.run(),
                 channels.start_all(),
             )
         except KeyboardInterrupt:
             console.print("\nShutting down...")
         finally:
+            gateway_server.should_exit = True
             await agent.close_mcp()
             heartbeat.stop()
             cron.stop()
@@ -478,10 +559,11 @@ def agent(
     logs: bool = typer.Option(False, "--logs/--no-logs", help="Show nanobot runtime logs during chat"),
 ):
     """Interact with the agent directly."""
-    from nanobot.config.loader import load_config, get_data_dir
+    from nanobot.config.loader import load_config
     from nanobot.bus.queue import MessageBus
     from nanobot.agent.loop import AgentLoop
     from nanobot.cron.service import CronService
+    from nanobot.utils.helpers import get_cron_store_path
     from loguru import logger
     
     config = load_config()
@@ -491,7 +573,7 @@ def agent(
     provider_cfg = config.get_provider(config.agents.defaults.model)
 
     # Create cron service for tool usage (no callback needed for CLI unless running)
-    cron_store_path = get_data_dir() / "cron" / "jobs.json"
+    cron_store_path = get_cron_store_path(config.workspace_path)
     cron = CronService(cron_store_path)
 
     if logs:
@@ -846,10 +928,12 @@ def cron_list(
     all: bool = typer.Option(False, "--all", "-a", help="Include disabled jobs"),
 ):
     """List scheduled jobs."""
-    from nanobot.config.loader import get_data_dir
+    from nanobot.config.loader import load_config
     from nanobot.cron.service import CronService
-    
-    store_path = get_data_dir() / "cron" / "jobs.json"
+    from nanobot.utils.helpers import get_cron_store_path
+
+    config = load_config()
+    store_path = get_cron_store_path(config.workspace_path)
     service = CronService(store_path)
     
     jobs = service.list_jobs(include_disabled=all)
@@ -907,9 +991,10 @@ def cron_add(
     channel: str = typer.Option(None, "--channel", help="Channel for delivery (e.g. 'telegram', 'whatsapp')"),
 ):
     """Add a scheduled job."""
-    from nanobot.config.loader import get_data_dir
+    from nanobot.config.loader import load_config
     from nanobot.cron.service import CronService
     from nanobot.cron.types import CronSchedule
+    from nanobot.utils.helpers import get_cron_store_path
     
     if tz and not cron_expr:
         console.print("[red]Error: --tz can only be used with --cron[/red]")
@@ -928,7 +1013,8 @@ def cron_add(
         console.print("[red]Error: Must specify --every, --cron, or --at[/red]")
         raise typer.Exit(1)
     
-    store_path = get_data_dir() / "cron" / "jobs.json"
+    config = load_config()
+    store_path = get_cron_store_path(config.workspace_path)
     service = CronService(store_path)
     
     try:
@@ -952,10 +1038,12 @@ def cron_remove(
     job_id: str = typer.Argument(..., help="Job ID to remove"),
 ):
     """Remove a scheduled job."""
-    from nanobot.config.loader import get_data_dir
+    from nanobot.config.loader import load_config
     from nanobot.cron.service import CronService
-    
-    store_path = get_data_dir() / "cron" / "jobs.json"
+    from nanobot.utils.helpers import get_cron_store_path
+
+    config = load_config()
+    store_path = get_cron_store_path(config.workspace_path)
     service = CronService(store_path)
     
     if service.remove_job(job_id):
@@ -970,10 +1058,12 @@ def cron_enable(
     disable: bool = typer.Option(False, "--disable", help="Disable instead of enable"),
 ):
     """Enable or disable a job."""
-    from nanobot.config.loader import get_data_dir
+    from nanobot.config.loader import load_config
     from nanobot.cron.service import CronService
-    
-    store_path = get_data_dir() / "cron" / "jobs.json"
+    from nanobot.utils.helpers import get_cron_store_path
+
+    config = load_config()
+    store_path = get_cron_store_path(config.workspace_path)
     service = CronService(store_path)
     
     job = service.enable_job(job_id, enabled=not disable)
@@ -991,11 +1081,12 @@ def cron_run(
 ):
     """Manually run a job."""
     from loguru import logger
-    from nanobot.config.loader import load_config, get_data_dir
+    from nanobot.config.loader import load_config
     from nanobot.cron.service import CronService
     from nanobot.cron.types import CronJob
     from nanobot.bus.queue import MessageBus
     from nanobot.agent.loop import AgentLoop
+    from nanobot.utils.helpers import get_cron_store_path
     logger.disable("nanobot")
 
     config = load_config()
@@ -1029,7 +1120,7 @@ def cron_run(
         browser_agent_extra_headers=browser_agent_extra_headers,
     )
 
-    store_path = get_data_dir() / "cron" / "jobs.json"
+    store_path = get_cron_store_path(config.workspace_path)
     service = CronService(store_path)
 
     result_holder = []

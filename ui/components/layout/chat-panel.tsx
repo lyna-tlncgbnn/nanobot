@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowUpRight, Hammer, Search, Sparkles } from "lucide-react";
+import { ArrowUpRight, Bot, Clock3, Files, Sparkles, Wrench } from "lucide-react";
+import { MessageCard } from "@/components/chat/message-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -66,6 +67,43 @@ function formatToolCalls(message: SessionMessage) {
     .join("\n");
 }
 
+function buildRenderKey(message: SessionMessage, index: number) {
+  return [
+    message.id ?? "",
+    message.role,
+    message.timestamp ?? "no-ts",
+    message.tool_call_id ?? "no-tool",
+    index,
+  ].join(":");
+}
+
+const emptyStatePrompts = [
+  {
+    title: "整理文件",
+    description: "帮我查看 F 盘某个目录里都有什么，并做一个简短整理。",
+    icon: Files,
+    prompt: "帮我查看 F 盘某个目录里都有什么，并做一个简短整理。",
+  },
+  {
+    title: "执行网页任务",
+    description: "打开一个网站，登录后按步骤完成查询或导出。",
+    icon: Wrench,
+    prompt: "打开一个网站，登录后按步骤完成查询或导出。",
+  },
+  {
+    title: "定时任务",
+    description: "帮我创建一个定时任务，每天固定时间执行一次。",
+    icon: Clock3,
+    prompt: "帮我创建一个定时任务，每天固定时间执行一次。",
+  },
+  {
+    title: "总结说明",
+    description: "读取一个文件或结果，然后输出一份清晰的总结。",
+    icon: Sparkles,
+    prompt: "读取一个文件或结果，然后输出一份清晰的总结。",
+  },
+];
+
 export function ChatPanel({
   messages,
   draft,
@@ -108,65 +146,77 @@ export function ChatPanel({
               正在加载会话历史...
             </article>
           ) : messages.length === 0 ? (
-            <article className="rounded-[14px] border border-dashed border-border bg-white/55 px-3 py-2.5 text-[12px] text-muted-foreground">
-              当前会话还没有消息，可以直接输入一个任务。
-            </article>
+            <section className="flex min-h-full items-center justify-center px-4 py-8">
+              <div className="w-full max-w-[760px]">
+                <div className="px-6 py-7">
+                  <div className="flex items-center justify-center">
+                    <div className="rounded-[18px] border border-[rgba(180,106,44,0.12)] bg-[rgba(180,106,44,0.07)] p-3 text-accent">
+                      <Bot className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <div className="text-[24px] font-semibold tracking-tight text-foreground">
+                      开始一个新的任务
+                    </div>
+                    <p className="mx-auto mt-2 max-w-[560px] text-[13px] leading-6 text-muted-foreground">
+                      可以直接输入你的目标，也可以先从下面这些常见任务模板开始。
+                    </p>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    {/* 空状态不再只留一条提示语，而是给出几个常见入口，减少中间大面积留白。 */}
+                    {emptyStatePrompts.map(({ title, description, icon: Icon, prompt }) => (
+                      <button
+                        key={title}
+                        className="rounded-[18px] border border-[rgba(53,40,17,0.08)] bg-[rgba(255,255,255,0.56)] px-4 py-4 text-left transition hover:border-[rgba(180,106,44,0.16)] hover:bg-[rgba(255,255,255,0.72)]"
+                        onClick={() => onDraftChange(prompt)}
+                        type="button"
+                      >
+                        <div className="flex items-center gap-2 text-[13px] font-medium text-foreground">
+                          <div className="rounded-[12px] bg-panel-strong p-2 text-accent">
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <span>{title}</span>
+                        </div>
+                        <p className="mt-3 text-[12px] leading-5 text-muted-foreground">
+                          {description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 rounded-[18px] border border-dashed border-[rgba(53,40,17,0.08)] bg-[rgba(255,255,255,0.42)] px-4 py-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      Tips
+                    </div>
+                    <p className="mt-2 text-[12px] leading-5 text-muted-foreground">
+                      你可以让我读取文件、执行网页操作、调用工具、整理结果，或者把某个流程做成定时任务。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
           ) : (
-            messages.map((message) => {
+            messages.map((message, index) => {
               const { main, runtime } = splitRuntimeContext(message.content);
               const toolCallSummary = formatToolCalls(message);
-              const isUser = message.role === "user";
-              const isAssistant = message.role === "assistant";
-              const isTool = message.role === "tool";
+              const role =
+                message.role === "tool" ? "tool" : message.role === "assistant" ? "assistant" : "user";
 
               return (
                 <div
-                  key={message.id}
-                  className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+                  key={buildRenderKey(message, index)}
+                  className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <article
-                    className={`w-full rounded-[14px] border px-3 py-2 ${
-                      isUser
-                        ? "max-w-[70%] border-[rgba(180,106,44,0.26)] bg-[rgba(180,106,44,0.14)]"
-                        : isAssistant
-                          ? "max-w-[80%] border-[rgba(180,106,44,0.14)] bg-[rgba(255,255,255,0.88)]"
-                          : "max-w-[84%] border-[rgba(93,72,36,0.16)] bg-[rgba(93,72,36,0.06)]"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                      {isAssistant ? (
-                        <Sparkles className="h-3.5 w-3.5" />
-                      ) : isTool ? (
-                        <Hammer className="h-3.5 w-3.5" />
-                      ) : (
-                        <Search className="h-3.5 w-3.5" />
-                      )}
-                      {getMessageTitle(message)}
-                    </div>
-
-                    {main ? (
-                      <div className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-5 text-foreground">
-                        {main}
-                      </div>
-                    ) : null}
-
-                    {!main && toolCallSummary ? (
-                      <pre className="mt-1 whitespace-pre-wrap break-words font-mono text-[11px] leading-5 text-foreground">
-                        {toolCallSummary}
-                      </pre>
-                    ) : null}
-
-                    {runtime && !isTool ? (
-                      <details className="mt-1.5 rounded-[12px] border border-border/80 bg-[rgba(255,248,238,0.9)] px-2 py-1.5">
-                        <summary className="cursor-pointer text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                          Runtime Context
-                        </summary>
-                        <pre className="mt-1 whitespace-pre-wrap break-words font-mono text-[10px] leading-[1.125rem] text-muted-foreground">
-                          {runtime}
-                        </pre>
-                      </details>
-                    ) : null}
-                  </article>
+                  {/* 这里把整张消息卡也抽成独立组件，chat-panel 只保留列表编排和滚动逻辑。
+                      后续如果继续调消息宽度、边框、角色样式，只需要集中改 MessageCard。 */}
+                  <MessageCard
+                    main={main}
+                    role={role}
+                    runtime={runtime}
+                    title={getMessageTitle(message)}
+                    toolCallSummary={toolCallSummary}
+                  />
                 </div>
               );
             })
@@ -174,15 +224,7 @@ export function ChatPanel({
 
           {pendingUserMessage ? (
             <div className="flex justify-end">
-              <article className="w-full max-w-[70%] rounded-[14px] border border-[rgba(180,106,44,0.26)] bg-[rgba(180,106,44,0.14)] px-3 py-2 opacity-80">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                  <Search className="h-3.5 w-3.5" />
-                  You
-                </div>
-                <div className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-5 text-foreground">
-                  {pendingUserMessage}
-                </div>
-              </article>
+              <MessageCard faded main={pendingUserMessage} role="user" title="You" />
             </div>
           ) : null}
 

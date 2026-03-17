@@ -72,6 +72,7 @@ class CronService:
         self._store: CronStore | None = None
         self._timer_task: asyncio.Task | None = None
         self._running = False
+        self._schedule_changed = asyncio.Event()
     
     def _load_store(self) -> CronStore:
         """Load jobs from disk."""
@@ -170,12 +171,13 @@ class CronService:
         self._load_store()
         self._recompute_next_runs()
         self._save_store()
-        self._arm_timer()
+        self._ensure_scheduler()
         logger.info("Cron service started with {} jobs", len(self._store.jobs if self._store else []))
     
     def stop(self) -> None:
         """Stop the cron service."""
         self._running = False
+        self._schedule_changed.set()
         if self._timer_task:
             self._timer_task.cancel()
             self._timer_task = None
@@ -197,25 +199,42 @@ class CronService:
                  if j.enabled and j.state.next_run_at_ms]
         return min(times) if times else None
     
-    def _arm_timer(self) -> None:
-        """Schedule the next timer tick."""
-        if self._timer_task:
-            self._timer_task.cancel()
-        
-        next_wake = self._get_next_wake_ms()
-        if not next_wake or not self._running:
+    def _ensure_scheduler(self) -> None:
+        """Ensure the background scheduler loop is running."""
+        if not self._running:
             return
-        
-        delay_ms = max(0, next_wake - _now_ms())
-        delay_s = delay_ms / 1000
-        
-        async def tick():
-            await asyncio.sleep(delay_s)
-            if self._running:
-                await self._on_timer()
-        
-        self._timer_task = asyncio.create_task(tick())
-    
+        if self._timer_task and not self._timer_task.done():
+            return
+        self._timer_task = asyncio.create_task(self._scheduler_loop())
+
+    def _notify_schedule_changed(self) -> None:
+        """Wake the scheduler loop after job list changes."""
+        if self._running:
+            self._schedule_changed.set()
+
+    async def _scheduler_loop(self) -> None:
+        """Continuously wait for the next due job or schedule changes."""
+        while self._running:
+            next_wake = self._get_next_wake_ms()
+            if not next_wake:
+                self._schedule_changed.clear()
+                try:
+                    await self._schedule_changed.wait()
+                except asyncio.CancelledError:
+                    break
+                continue
+
+            delay_s = max(0, (next_wake - _now_ms()) / 1000)
+            self._schedule_changed.clear()
+            try:
+                await asyncio.wait_for(self._schedule_changed.wait(), timeout=delay_s)
+                continue
+            except asyncio.TimeoutError:
+                if self._running:
+                    await self._on_timer()
+            except asyncio.CancelledError:
+                break
+
     async def _on_timer(self) -> None:
         """Handle timer tick - run due jobs."""
         if not self._store:
@@ -231,7 +250,6 @@ class CronService:
             await self._execute_job(job)
         
         self._save_store()
-        self._arm_timer()
     
     async def _execute_job(self, job: CronJob) -> None:
         """Execute a single job."""
@@ -309,7 +327,7 @@ class CronService:
         
         store.jobs.append(job)
         self._save_store()
-        self._arm_timer()
+        self._notify_schedule_changed()
         
         logger.info("Cron: added job '{}' ({})", name, job.id)
         return job
@@ -323,7 +341,7 @@ class CronService:
         
         if removed:
             self._save_store()
-            self._arm_timer()
+            self._notify_schedule_changed()
             logger.info("Cron: removed job {}", job_id)
         
         return removed
@@ -340,7 +358,7 @@ class CronService:
                 else:
                     job.state.next_run_at_ms = None
                 self._save_store()
-                self._arm_timer()
+                self._notify_schedule_changed()
                 return job
         return None
     
@@ -353,7 +371,7 @@ class CronService:
                     return False
                 await self._execute_job(job)
                 self._save_store()
-                self._arm_timer()
+                self._notify_schedule_changed()
                 return True
         return False
     
