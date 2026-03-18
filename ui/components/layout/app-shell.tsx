@@ -22,6 +22,7 @@ import {
   type SessionMessage,
 } from "@/lib/api/client";
 import { useUiStore } from "@/lib/stores/ui-store";
+import { cn } from "@/lib/utils";
 
 function formatRelativeTime(value: string | null | undefined) {
   if (!value) {
@@ -72,8 +73,10 @@ export function AppShell() {
   const queryClient = useQueryClient();
   const activeSessionId = useUiStore((state) => state.activeSessionId);
   const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
+  const jobsPanelCollapsed = useUiStore((state) => state.jobsPanelCollapsed);
   const setActiveSessionId = useUiStore((state) => state.setActiveSessionId);
   const toggleSidebarCollapsed = useUiStore((state) => state.toggleSidebarCollapsed);
+  const toggleJobsPanelCollapsed = useUiStore((state) => state.toggleJobsPanelCollapsed);
   const [draft, setDraft] = useState("");
   const [streamMessages, setStreamMessages] = useState<SessionMessage[]>([]);
   const [streamTargetSessionId, setStreamTargetSessionId] = useState<string | null>(null);
@@ -275,7 +278,14 @@ export function AppShell() {
         />
 
         <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="grid min-h-0 flex-1 gap-2 overflow-hidden xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div
+            className={cn(
+              "grid min-h-0 flex-1 gap-2 overflow-hidden",
+              jobsPanelCollapsed
+                ? "xl:grid-cols-[minmax(0,1fr)_78px]"
+                : "xl:grid-cols-[minmax(0,1fr)_300px]",
+            )}
+          >
             <ChatPanel
               draft={draft}
               error={
@@ -295,6 +305,7 @@ export function AppShell() {
 
             <DetailPanel
               activeSessionId={activeSessionId}
+              collapsed={jobsPanelCollapsed}
               creating={createJobMutation.isPending}
               deletingJobId={deleteJobMutation.isPending ? deleteJobMutation.variables ?? null : null}
               error={
@@ -315,6 +326,7 @@ export function AppShell() {
               loading={jobsQuery.isLoading || jobHistoryQuery.isLoading}
               onCreateJob={handleCreateJob}
               onDeleteJob={handleDeleteJob}
+              onToggleCollapse={toggleJobsPanelCollapsed}
               onToggleJob={handleToggleJob}
               updatingJobId={updateJobMutation.isPending ? updateJobMutation.variables?.jobId ?? null : null}
             />

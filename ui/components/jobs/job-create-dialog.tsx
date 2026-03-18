@@ -9,6 +9,7 @@ export function JobCreateDialog({
   activeSessionId,
   creating,
   open,
+  showTrigger = true,
   onOpen,
   onClose,
   onCreateJob,
@@ -16,6 +17,7 @@ export function JobCreateDialog({
   activeSessionId: string;
   creating: boolean;
   open: boolean;
+  showTrigger?: boolean;
   onOpen: () => void;
   onClose: () => void;
   onCreateJob: (input: {
@@ -47,10 +49,16 @@ export function JobCreateDialog({
 
   return (
     <>
-      <Button className="h-10 w-full justify-center gap-2 rounded-[14px] px-3 text-[13px]" onClick={onOpen} variant="default">
-        <Plus className="h-3.5 w-3.5" />
-        定时任务
-      </Button>
+      {/* {showTrigger ? (
+        <Button
+          className="h-10 w-full justify-center gap-2 rounded-[14px] px-3 text-[13px]"
+          onClick={onOpen}
+          variant="default"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          定时任务
+        </Button>
+      ) : null} */}
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(29,26,20,0.26)] px-4 py-6">
           <button
