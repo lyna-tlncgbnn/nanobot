@@ -10,7 +10,6 @@ import {
   type DetailSelection,
   type JobTab,
 } from "@/components/jobs/utils";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { JobHistoryItem, JobResponse } from "@/lib/api/client";
 
@@ -50,43 +49,34 @@ export function JobList({
       : null;
 
   return (
-    <div className="mt-2 min-h-0 flex-1 overflow-hidden rounded-[14px] border border-border bg-white/60">
-      <ScrollArea className="h-full">
-        <div className="space-y-2 p-3">
+    <div className="mt-1 min-h-0 flex-1 overflow-hidden">
+      <ScrollArea className="h-full" scrollbarClassName="translate-x-1">
+        <div className="divide-y divide-[rgba(53,40,17,0.08)]">
           {loading ? (
-            <div className="rounded-[12px] border border-border bg-white/80 px-3 py-3 text-[12px] text-muted-foreground">
-              正在加载任务数据...
-            </div>
+            <div className="px-1 py-3 text-[12px] text-muted-foreground">正在加载任务数据...</div>
           ) : error ? (
-            <div className="rounded-[12px] border border-[rgba(154,50,36,0.18)] bg-[rgba(154,50,36,0.08)] px-3 py-3 text-[12px] text-[rgba(154,50,36,1)]">
+            <div className="bg-[rgba(154,50,36,0.06)] px-1 py-3 text-[12px] text-[rgba(154,50,36,1)]">
               {error}
             </div>
           ) : currentList.length === 0 ? (
-            <div className="rounded-[12px] border border-dashed border-border bg-white/80 px-3 py-3 text-[12px] text-muted-foreground">
-              当前分组还没有任务。
-            </div>
+            <div className="px-1 py-3 text-[12px] text-muted-foreground">当前分组还没有任务。</div>
           ) : null}
 
           {tab === "pending"
             ? pendingJobs.map((job) => {
                 const badge = getStatusBadge(job.enabled ? "pending" : "disabled");
+                const selected = selection?.type === "job" && selection.id === job.id;
+
                 return (
-                  <article
-                    key={job.id}
-                    className={`rounded-[14px] border px-3 py-3 transition ${
-                      selection?.type === "job" && selection.id === job.id
-                        ? "border-[rgba(180,106,44,0.22)] bg-[rgba(180,106,44,0.10)]"
-                        : "border-border bg-[rgba(255,255,255,0.8)]"
-                    }`}
-                  >
+                  <div key={job.id} className={selected ? "bg-[rgba(180,106,44,0.08)]" : ""}>
                     <button
-                      className="w-full text-left"
+                      className="block w-full rounded-[12px] px-3 py-3 text-left transition hover:bg-[rgba(255,255,255,0.54)]"
                       onClick={() => onSelect({ type: "job", id: job.id })}
                       type="button"
                     >
-                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-                        <div className="min-w-0 overflow-hidden">
-                          <div className="truncate text-[13px] font-medium">{job.name}</div>
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[13px] font-medium text-foreground">{job.name}</div>
                           <div className="mt-1 truncate text-[12px] leading-5 text-muted-foreground">
                             {describeSchedule(job)}
                           </div>
@@ -94,13 +84,15 @@ export function JobList({
                             {job.state.next_run_at ? `下次执行：${formatDateTime(job.state.next_run_at)}` : "等待调度"}
                           </div>
                         </div>
-                        <Badge className={`whitespace-nowrap ${badge.className}`}>{badge.label}</Badge>
+                        <span className={`inline-flex shrink-0 items-center rounded-full border px-2 py-[1px] text-[10px] ${badge.className}`}>
+                          {badge.label}
+                        </span>
                       </div>
                     </button>
 
-                    <div className="mt-3 flex items-center justify-center gap-3">
+                    <div className="flex items-center gap-2 px-3 pb-3">
                       <button
-                        className="flex h-7 w-16 items-center justify-center rounded-md border text-xs transition hover:bg-muted disabled:opacity-50"
+                        className="inline-flex h-7 items-center justify-center rounded-[9px] border border-[rgba(53,40,17,0.14)] px-3 text-[11px] text-foreground transition hover:bg-[rgba(255,255,255,0.7)] disabled:opacity-50"
                         disabled={updatingJobId === job.id}
                         onClick={() => void onToggleJob(job)}
                         type="button"
@@ -109,7 +101,7 @@ export function JobList({
                       </button>
                       <button
                         aria-label="删除任务"
-                        className="flex h-7 w-16 items-center justify-center rounded-md border text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-50"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-[9px] border border-[rgba(53,40,17,0.14)] text-muted-foreground transition hover:bg-[rgba(255,255,255,0.7)] hover:text-foreground disabled:opacity-50"
                         disabled={deletingJobId === job.id}
                         onClick={() => void onDeleteJob(job.id)}
                         type="button"
@@ -117,7 +109,7 @@ export function JobList({
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                  </article>
+                  </div>
                 );
               })
             : null}
@@ -126,20 +118,20 @@ export function JobList({
             ? currentList.map((item) => {
                 const historyItem = item as JobHistoryItem;
                 const badge = getStatusBadge(tab === "completed" ? "completed" : "failed");
+                const selected = selection?.type === "history" && selection.id === historyItem.run_id;
+
                 return (
                   <button
                     key={historyItem.run_id}
-                    className={`block w-full rounded-[14px] border px-3 py-3 text-left transition ${
-                      selection?.type === "history" && selection.id === historyItem.run_id
-                        ? "border-[rgba(180,106,44,0.22)] bg-[rgba(180,106,44,0.10)]"
-                        : "border-border bg-[rgba(255,255,255,0.8)]"
+                    className={`block w-full rounded-[12px] px-4 py-4 text-left transition ${
+                      selected ? "bg-[rgba(180,106,44,0.08)]" : "hover:bg-[rgba(255,255,255,0.54)]"
                     }`}
                     onClick={() => onSelect({ type: "history", id: historyItem.run_id })}
                     type="button"
                   >
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-                      <div className="min-w-0 overflow-hidden">
-                        <div className="truncate text-[13px] font-medium">{historyItem.job_name}</div>
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                      <div className="min-w-0">
+                        <div className="truncate text-[13px] font-medium text-foreground">{historyItem.job_name}</div>
                         <div className="mt-1 truncate text-[12px] leading-5 text-muted-foreground">
                           {getHistoryScheduleLabel(historyItem)}
                         </div>
@@ -147,13 +139,14 @@ export function JobList({
                           {tab === "completed" ? "执行完成" : "执行失败"}：{formatDateTime(historyItem.executed_at)}
                         </div>
                       </div>
-                      <Badge className={`whitespace-nowrap ${badge.className}`}>{badge.label}</Badge>
+                      <span className={`inline-flex shrink-0 items-center rounded-full border px-2 py-[1px] text-[10px] ${badge.className}`}>
+                        {badge.label}
+                      </span>
                     </div>
                   </button>
                 );
               })
             : null}
-
         </div>
       </ScrollArea>
       <JobDetailDialog historyItem={selectedHistory} job={selectedJob} onClose={() => onSelect(null)} />

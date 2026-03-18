@@ -45,24 +45,24 @@ export function getStatusBadge(status: string) {
   if (status === "error" || status === "failed") {
     return {
       label: "失败",
-      className: "border-[rgba(154,50,36,0.18)] bg-[rgba(154,50,36,0.08)] text-[rgba(154,50,36,1)]",
+      className: "border-[rgba(154,50,36,0.12)] bg-[rgba(154,50,36,0.04)] text-[rgba(154,50,36,0.9)]",
     };
   }
   if (status === "disabled") {
     return {
       label: "停用",
-      className: "border-border bg-panel-strong text-muted-foreground",
+      className: "border-[rgba(53,40,17,0.08)] bg-[rgba(53,40,17,0.03)] text-muted-foreground",
     };
   }
   if (status === "completed") {
     return {
       label: "完成",
-      className: "border-[rgba(54,121,72,0.18)] bg-[rgba(54,121,72,0.08)] text-[rgba(54,121,72,1)]",
+      className: "border-[rgba(54,121,72,0.12)] bg-[rgba(54,121,72,0.04)] text-[rgba(54,121,72,0.9)]",
     };
   }
   return {
     label: "待执行",
-    className: "border-[rgba(180,106,44,0.22)] bg-[rgba(180,106,44,0.10)] text-accent",
+    className: "border-[rgba(180,106,44,0.14)] bg-[rgba(180,106,44,0.04)] text-accent",
   };
 }
 
@@ -72,4 +72,3 @@ export type DetailSelection =
   | { type: "job"; id: string }
   | { type: "history"; id: string }
   | null;
-

@@ -24,34 +24,36 @@ export function JobsSummary({ tab, pending, completed, failed, onChange }: JobsS
   ];
 
   return (
-    <div className="mt-2 grid grid-cols-3 gap-2">
-      {items.map((item) => {
-        const Icon = item.icon;
-        const active = tab === item.key;
+    <div className="mt-2 border-b border-[rgba(53,40,17,0.08)] pb-2">
+      <div className="grid grid-cols-3 gap-1">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const active = tab === item.key;
 
-        return (
-          <button
-            key={item.key}
-            className={`rounded-[14px] border p-3 text-center transition-colors ${
-              active
-                ? "border-[rgba(180,106,44,0.3)] bg-[rgba(180,106,44,0.12)] text-accent"
-                : "border-border bg-white/60 text-foreground"
-            }`}
-            onClick={() => onChange(item.key)}
-            type="button"
-          >
-            <div
-              className={`flex items-center justify-center gap-2 text-center text-[12px] ${
-                active ? "text-accent" : "text-muted-foreground"
+          return (
+            <button
+              key={item.key}
+              className={`rounded-[10px] px-2 py-2 text-left transition-colors ${
+                active
+                  ? "bg-[rgba(180,106,44,0.08)] text-accent"
+                  : "text-foreground hover:bg-[rgba(255,255,255,0.38)]"
               }`}
+              onClick={() => onChange(item.key)}
+              type="button"
             >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{item.label}</span>
-            </div>
-            <div className="mt-1 text-center text-[20px] font-semibold">{item.count}</div>
-          </button>
-        );
-      })}
+              <div
+                className={`flex items-center gap-1.5 text-[11px] ${
+                  active ? "text-accent" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{item.label}</span>
+              </div>
+              <div className="mt-1 pl-5 text-[18px] font-semibold leading-none">{item.count}</div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
