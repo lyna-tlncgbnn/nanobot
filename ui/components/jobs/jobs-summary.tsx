@@ -35,8 +35,8 @@ export function JobsSummary({ tab, pending, completed, failed, onChange }: JobsS
               key={item.key}
               className={`rounded-[10px] px-2 py-2 text-left transition-colors ${
                 active
-                  ? "bg-[rgba(180,106,44,0.08)] text-accent"
-                  : "text-foreground hover:bg-[rgba(255,255,255,0.38)]"
+                  ? "bg-[rgba(180,106,44,0.05)] text-accent"
+                  : "text-foreground hover:bg-[rgba(180,106,44,0.04)]"
               }`}
               onClick={() => onChange(item.key)}
               type="button"

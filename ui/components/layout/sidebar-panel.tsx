@@ -35,7 +35,7 @@ export function SidebarPanel({
   return (
     <aside
       className={cn(
-        "hidden h-full min-h-0 shrink-0 rounded-[18px] border border-border bg-[rgba(255,250,241,0.9)] px-3 py-3 shadow-[0_18px_56px_rgba(74,54,18,0.06)] lg:flex lg:flex-col lg:overflow-hidden",
+        "hidden h-full min-h-0 shrink-0 rounded-[18px] border border-border bg-panel px-3 py-3 shadow-[0_18px_56px_rgba(36,38,42,0.04)] lg:flex lg:flex-col lg:overflow-hidden",
         collapsed ? "w-[78px]" : "w-[280px]",
       )}
     >
@@ -51,7 +51,7 @@ export function SidebarPanel({
           </div>
         ) : null}
         <button
-          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-[12px] border border-border bg-panel-strong text-muted-foreground transition hover:border-[rgba(180,106,44,0.22)] hover:text-accent"
+          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-[12px] border border-border bg-panel-strong text-muted-foreground transition hover:bg-panel-muted hover:text-accent"
           onClick={onToggleCollapse}
           title={collapsed ? "展开侧栏" : "收起侧栏"}
           type="button"
@@ -64,7 +64,7 @@ export function SidebarPanel({
         <>
           {/* 收起后保留一条窄边栏，符合常见控制台/聊天应用的侧栏行为。
               这样不会完全丢失导航入口，同时也给中间内容让出更多空间。 */}
-          <Button className="mt-2 h-10 w-full rounded-[14px] px-0" onClick={onCreateSession} title="开始任务">
+          <Button className="mt-2 h-10 w-full rounded-[11px] border border-dashed border-[rgba(180,106,44,0.22)] bg-[rgba(255,255,255,0.9)] px-0 text-accent hover:bg-[rgba(180,106,44,0.04)] hover:brightness-100" onClick={onCreateSession} title="开始任务">
             <Plus className="h-4 w-4" />
           </Button>
 
@@ -82,8 +82,8 @@ export function SidebarPanel({
                         className={cn(
                           "relative inline-flex h-11 w-11 items-center justify-center rounded-[14px] transition",
                           active
-                            ? "bg-[rgba(180,106,44,0.12)] text-accent"
-                            : "bg-transparent text-muted-foreground hover:bg-[rgba(255,255,255,0.52)] hover:text-accent",
+                            ? "bg-[rgba(180,106,44,0.05)] text-accent"
+                            : "bg-transparent text-muted-foreground hover:bg-[rgba(180,106,44,0.10)] hover:text-accent",
                         )}
                         onClick={() => onSelectSession(session.id)}
                         title={`${session.title}\n${session.time}`}
@@ -104,7 +104,7 @@ export function SidebarPanel({
       ) : (
         <>
           <Button
-            className="mt-2 h-10 w-full justify-center gap-2 rounded-[14px] px-3 text-[13px]"
+            className="mt-2 h-10 w-full justify-center gap-2 rounded-[11px] border border-dashed border-[rgba(180,106,44,0.22)] bg-[rgba(255,255,255,0.9)] px-3 text-[13px] text-accent hover:bg-[rgba(180,106,44,0.04)] hover:brightness-100"
             onClick={onCreateSession}
           >
             <Plus className="h-3.5 w-3.5" />
@@ -113,7 +113,7 @@ export function SidebarPanel({
 
           <ScrollArea className="mt-2 min-h-0 flex-1" scrollbarClassName="translate-x-1">
             {loading ? (
-              <div className="rounded-[12px] bg-white/50 px-3 py-3 text-[12px] text-muted-foreground">
+              <div className="rounded-[12px] bg-[rgba(255,255,255,0.72)] px-3 py-3 text-[12px] text-muted-foreground">
                 正在加载会话列表...
               </div>
             ) : (
@@ -136,8 +136,8 @@ export function SidebarPanel({
                         className={cn(
                           "grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 rounded-[12px] px-3 py-2 transition",
                           active
-                            ? "bg-[rgba(180,106,44,0.08)]"
-                            : "hover:bg-[rgba(255,255,255,0.48)]",
+                            ? "bg-[rgba(180,106,44,0.045)]"
+                            : "hover:bg-[rgba(180,106,44,0.08)]",
                         )}
                         title={session.title}
                       >
@@ -150,8 +150,8 @@ export function SidebarPanel({
                             className={cn(
                               "mt-0.5 rounded-[10px] p-1.5 transition",
                               active
-                                ? "bg-[rgba(240,231,212,0.95)] text-accent"
-                                : "bg-panel-strong/70 text-accent",
+                                ? "bg-[rgba(180,106,44,0.05)] text-accent"
+                                : "bg-panel-strong text-accent",
                             )}
                           >
                             <Bot className="h-3.5 w-3.5" />
@@ -171,8 +171,8 @@ export function SidebarPanel({
                           className={cn(
                             "mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-[9px] text-muted-foreground transition",
                             active
-                              ? "bg-white/65 hover:bg-white/85 hover:text-accent"
-                              : "opacity-55 hover:bg-white/65 hover:text-accent group-hover:opacity-100",
+                              ? "bg-[rgba(255,255,255,0.72)] hover:bg-[rgba(180,106,44,0.12)] hover:text-accent"
+                              : "opacity-55 hover:bg-[rgba(180,106,44,0.10)] hover:text-accent group-hover:opacity-100",
                           )}
                           disabled={deletingSessionId === session.id}
                           onClick={() => onDeleteSession(session.id)}

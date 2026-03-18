@@ -68,9 +68,9 @@ export function JobList({
                 const selected = selection?.type === "job" && selection.id === job.id;
 
                 return (
-                  <div key={job.id} className={selected ? "bg-[rgba(180,106,44,0.08)]" : ""}>
+                  <div key={job.id} className={selected ? "bg-[rgba(180,106,44,0.05)]" : ""}>
                     <button
-                      className="block w-full rounded-[12px] px-3 py-3 text-left transition hover:bg-[rgba(255,255,255,0.54)]"
+                      className="block w-full rounded-[12px] px-3 py-3 text-left transition hover:bg-[rgba(180,106,44,0.08)]"
                       onClick={() => onSelect({ type: "job", id: job.id })}
                       type="button"
                     >
@@ -92,7 +92,7 @@ export function JobList({
 
                     <div className="flex items-center gap-2 px-3 pb-3">
                       <button
-                        className="inline-flex h-7 items-center justify-center rounded-[9px] border border-[rgba(53,40,17,0.14)] px-3 text-[11px] text-foreground transition hover:bg-[rgba(255,255,255,0.7)] disabled:opacity-50"
+                        className="inline-flex h-7 items-center justify-center rounded-[9px] border border-[rgba(53,40,17,0.14)] px-3 text-[11px] text-foreground transition hover:bg-[rgba(180,106,44,0.08)] disabled:opacity-50"
                         disabled={updatingJobId === job.id}
                         onClick={() => void onToggleJob(job)}
                         type="button"
@@ -101,7 +101,7 @@ export function JobList({
                       </button>
                       <button
                         aria-label="删除任务"
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-[9px] border border-[rgba(53,40,17,0.14)] text-muted-foreground transition hover:bg-[rgba(255,255,255,0.7)] hover:text-foreground disabled:opacity-50"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-[9px] border border-[rgba(53,40,17,0.14)] text-muted-foreground transition hover:bg-[rgba(180,106,44,0.08)] hover:text-foreground disabled:opacity-50"
                         disabled={deletingJobId === job.id}
                         onClick={() => void onDeleteJob(job.id)}
                         type="button"
@@ -124,7 +124,7 @@ export function JobList({
                   <button
                     key={historyItem.run_id}
                     className={`block w-full rounded-[12px] px-4 py-4 text-left transition ${
-                      selected ? "bg-[rgba(180,106,44,0.08)]" : "hover:bg-[rgba(255,255,255,0.54)]"
+                      selected ? "bg-[rgba(180,106,44,0.05)]" : "hover:bg-[rgba(180,106,44,0.08)]"
                     }`}
                     onClick={() => onSelect({ type: "history", id: historyItem.run_id })}
                     type="button"

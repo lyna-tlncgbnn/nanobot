@@ -13,7 +13,7 @@ export function JobDetailCard({
 }) {
   if (job) {
     return (
-      <article className="rounded-[14px] border border-border bg-[rgba(255,250,241,0.96)] p-3">
+      <article className="rounded-[14px] border border-border bg-[rgba(255,255,255,0.86)] p-3">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-4 w-4 text-accent" />
           <div className="text-[13px] font-medium">任务详情</div>
@@ -37,7 +37,7 @@ export function JobDetailCard({
 
   if (historyItem) {
     return (
-      <article className="rounded-[14px] border border-border bg-[rgba(255,250,241,0.96)] p-3">
+      <article className="rounded-[14px] border border-border bg-[rgba(255,255,255,0.86)] p-3">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-4 w-4 text-accent" />
           <div className="text-[13px] font-medium">执行详情</div>

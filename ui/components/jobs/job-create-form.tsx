@@ -106,7 +106,7 @@ export function JobCreateForm({
   };
 
   return (
-    <div className="rounded-[14px] border border-border bg-white/60 p-3">
+    <div className="rounded-[14px] border border-border bg-[rgba(255,255,255,0.74)] p-3">
       <div className="flex items-center justify-between gap-2">
         <div>
           <div className="text-[13px] font-medium">新建任务</div>
@@ -119,13 +119,13 @@ export function JobCreateForm({
 
       <div className="mt-3 space-y-2">
         <input
-          className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.82)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.28)]"
+          className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.88)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.22)]"
           placeholder="任务标题"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
         <textarea
-          className="min-h-[82px] w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.82)] px-3 py-2 text-[13px] outline-none focus:border-[rgba(180,106,44,0.28)]"
+          className="min-h-[82px] w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.88)] px-3 py-2 text-[13px] outline-none focus:border-[rgba(180,106,44,0.22)]"
           placeholder="任务内容，例如：提醒我带伞"
           value={message}
           onChange={(event) => setMessage(event.target.value)}
@@ -135,8 +135,8 @@ export function JobCreateForm({
           <button
             className={`rounded-[12px] border px-2 py-2 text-[12px] ${
               scheduleType === "at"
-                ? "border-[rgba(180,106,44,0.28)] bg-[rgba(180,106,44,0.10)] text-accent"
-                : "border-border bg-white/70 text-muted-foreground"
+                ? "border-[rgba(180,106,44,0.16)] bg-[rgba(180,106,44,0.04)] text-accent"
+                : "border-border bg-[rgba(255,255,255,0.74)] text-muted-foreground"
             }`}
             onClick={() => setScheduleType("at")}
             type="button"
@@ -146,8 +146,8 @@ export function JobCreateForm({
           <button
             className={`rounded-[12px] border px-2 py-2 text-[12px] ${
               scheduleType === "every"
-                ? "border-[rgba(180,106,44,0.28)] bg-[rgba(180,106,44,0.10)] text-accent"
-                : "border-border bg-white/70 text-muted-foreground"
+                ? "border-[rgba(180,106,44,0.16)] bg-[rgba(180,106,44,0.04)] text-accent"
+                : "border-border bg-[rgba(255,255,255,0.74)] text-muted-foreground"
             }`}
             onClick={() => setScheduleType("every")}
             type="button"
@@ -157,8 +157,8 @@ export function JobCreateForm({
           <button
             className={`rounded-[12px] border px-2 py-2 text-[12px] ${
               scheduleType === "cron"
-                ? "border-[rgba(180,106,44,0.28)] bg-[rgba(180,106,44,0.10)] text-accent"
-                : "border-border bg-white/70 text-muted-foreground"
+                ? "border-[rgba(180,106,44,0.16)] bg-[rgba(180,106,44,0.04)] text-accent"
+                : "border-border bg-[rgba(255,255,255,0.74)] text-muted-foreground"
             }`}
             onClick={() => setScheduleType("cron")}
             type="button"
@@ -168,7 +168,7 @@ export function JobCreateForm({
         </div>
 
         {scheduleType === "at" ? (
-          <div className="rounded-[14px] border border-[rgba(180,106,44,0.18)] bg-[rgba(255,248,239,0.72)] p-3">
+          <div className="rounded-[14px] border border-[rgba(180,106,44,0.12)] bg-[rgba(255,255,255,0.74)] p-3">
             <div className="flex items-center gap-2 text-[12px] font-medium text-accent">
               <CalendarClock className="h-3.5 w-3.5" />
               <span>执行时间</span>
@@ -177,7 +177,7 @@ export function JobCreateForm({
               选择这条一次性任务的触发时间。
             </div>
             <input
-              className="mt-3 h-11 w-full rounded-[12px] border border-border bg-white/90 px-3 text-[14px] text-foreground outline-none transition-colors [color-scheme:light] focus:border-[rgba(180,106,44,0.35)]"
+              className="mt-3 h-11 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.92)] px-3 text-[14px] text-foreground outline-none transition-colors [color-scheme:light] focus:border-[rgba(180,106,44,0.24)]"
               min={minAtValue}
               type="datetime-local"
               value={atValue}
@@ -188,7 +188,7 @@ export function JobCreateForm({
 
         {scheduleType === "every" ? (
           <input
-            className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.82)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.28)]"
+            className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.88)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.22)]"
             min={1}
             placeholder="间隔秒数，例如 600"
             type="number"
@@ -200,13 +200,13 @@ export function JobCreateForm({
         {scheduleType === "cron" ? (
           <div className="space-y-2">
             <input
-              className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.82)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.28)]"
+              className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.88)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.22)]"
               placeholder="Cron 表达式，例如 0 9 * * *"
               value={cronExpr}
               onChange={(event) => setCronExpr(event.target.value)}
             />
             <input
-              className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.82)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.28)]"
+              className="h-9 w-full rounded-[12px] border border-border bg-[rgba(255,255,255,0.88)] px-3 text-[13px] outline-none focus:border-[rgba(180,106,44,0.22)]"
               placeholder="时区，可选，例如 Asia/Shanghai"
               value={timezone}
               onChange={(event) => setTimezone(event.target.value)}

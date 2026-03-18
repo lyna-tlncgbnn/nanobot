@@ -43,7 +43,7 @@ export function JobDetailDialog({
         onClick={onClose}
         type="button"
       />
-      <div className="relative z-10 w-full max-w-[560px] rounded-[24px] border border-border bg-[rgba(255,250,241,0.98)] p-4 shadow-[0_30px_80px_rgba(29,26,20,0.18)]">
+      <div className="relative z-10 w-full max-w-[560px] rounded-[24px] border border-border bg-[rgba(252,252,250,0.98)] p-4 shadow-[0_30px_80px_rgba(29,26,20,0.14)]">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -52,7 +52,7 @@ export function JobDetailDialog({
             <div className="mt-1 text-[18px] font-semibold">任务详情</div>
           </div>
           <button
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white/75 text-muted-foreground transition hover:bg-panel-strong hover:text-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-panel text-muted-foreground transition hover:bg-panel-strong hover:text-foreground"
             onClick={onClose}
             type="button"
           >

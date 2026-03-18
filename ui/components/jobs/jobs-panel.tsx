@@ -126,7 +126,7 @@ export function JobsPanel({
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border border-border bg-[rgba(255,250,241,0.92)] px-3 py-3 shadow-[0_18px_56px_rgba(74,54,18,0.06)]",
+        "flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border border-border bg-panel px-3 py-3 shadow-[0_18px_56px_rgba(36,38,42,0.04)]",
         collapsed ? "w-[78px]" : "w-full",
       )}
     >
@@ -154,7 +154,7 @@ export function JobsPanel({
           </div>
         ) : null}
         <button
-          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-[12px] border border-border bg-panel-strong text-muted-foreground transition hover:border-[rgba(180,106,44,0.22)] hover:text-accent"
+          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-[12px] border border-border bg-panel-strong text-muted-foreground transition hover:bg-panel-muted hover:text-accent"
           onClick={onToggleCollapse}
           title={collapsed ? "展开任务面板" : "收起任务面板"}
           type="button"
@@ -165,7 +165,7 @@ export function JobsPanel({
 
       {collapsed ? (
         <>
-          <Button className="mt-2 h-10 w-full rounded-[14px] px-0" onClick={handleCollapsedCreate} title="新建任务">
+          <Button className="mt-2 h-10 w-full rounded-[11px] border border-dashed border-[rgba(180,106,44,0.22)] bg-[rgba(255,255,255,0.9)] px-0 text-accent hover:bg-[rgba(180,106,44,0.04)] hover:brightness-100" onClick={handleCollapsedCreate} title="新建任务">
             <Plus className="h-4 w-4" />
           </Button>
 
@@ -180,15 +180,15 @@ export function JobsPanel({
                   className={cn(
                     "relative inline-flex h-11 w-11 items-center justify-center rounded-[14px] transition",
                     active
-                      ? "bg-[rgba(180,106,44,0.12)] text-accent"
-                      : "bg-transparent text-muted-foreground hover:bg-[rgba(255,255,255,0.52)] hover:text-accent",
+                      ? "bg-[rgba(180,106,44,0.05)] text-accent"
+                      : "bg-transparent text-muted-foreground hover:bg-[rgba(180,106,44,0.08)] hover:text-accent",
                   )}
                   onClick={() => handleCollapsedTabOpen(item.key)}
                   title={`${item.label}: ${item.count}`}
                   type="button"
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full border border-border bg-white/90 px-1 text-center font-mono text-[10px] leading-4 text-foreground">
+                  <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full border border-border bg-panel px-1 text-center font-mono text-[10px] leading-4 text-foreground">
                     {item.count}
                   </span>
                   {active ? (
@@ -203,7 +203,7 @@ export function JobsPanel({
         <>
           <div className="pt-2">
             <Button
-              className="h-10 w-full justify-center gap-2 rounded-[14px] px-3 text-[13px]"
+              className="h-10 w-full justify-center gap-2 rounded-[11px] border border-dashed border-[rgba(180,106,44,0.22)] bg-[rgba(255,255,255,0.9)] px-3 text-[13px] text-accent hover:bg-[rgba(180,106,44,0.04)] hover:brightness-100"
               onClick={() => setShowCreateDialog(true)}
             >
               <Plus className="h-3.5 w-3.5" />

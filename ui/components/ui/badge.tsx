@@ -14,7 +14,7 @@ export function Badge({
       className={cn(
         "inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.18em]",
         variant === "default"
-          ? "border border-[rgba(180,106,44,0.22)] bg-[rgba(180,106,44,0.10)] text-accent"
+          ? "border border-[rgba(180,106,44,0.14)] bg-[rgba(180,106,44,0.04)] text-accent"
           : "border border-border bg-panel-strong text-muted-foreground",
         className,
       )}

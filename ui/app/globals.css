@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4efe3;
-  --foreground: #1d1a14;
-  --panel: #fffaf1;
-  --panel-strong: #f0e7d4;
-  --panel-muted: #eadfc7;
-  --border: rgba(53, 40, 17, 0.12);
+  --background: #f7f7f5;
+  --foreground: #232427;
+  --panel: #fcfcfa;
+  --panel-strong: #f2f2ef;
+  --panel-muted: #ecece8;
+  --border: rgba(36, 38, 42, 0.10);
   --accent: #b46a2c;
-  --accent-foreground: #fff7ed;
-  --muted-foreground: #6f6249;
+  --accent-foreground: #fff8f1;
+  --muted-foreground: #7a7e86;
   --ring: rgba(180, 106, 44, 0.34);
 }
 
@@ -34,9 +34,9 @@
 
 html {
   background:
-    radial-gradient(circle at top left, rgba(210, 151, 92, 0.26), transparent 24%),
-    radial-gradient(circle at right 20%, rgba(112, 80, 36, 0.12), transparent 18%),
-    linear-gradient(180deg, #f8f2e7 0%, #f4efe3 50%, #efe5d3 100%);
+    radial-gradient(circle at top center, rgba(226, 165, 101, 0.10), transparent 28%),
+    radial-gradient(circle at right 18%, rgba(234, 192, 147, 0.07), transparent 16%),
+    linear-gradient(180deg, #fbfbfa 0%, #f7f7f5 52%, #f2f2ef 100%);
 }
 
 body {
@@ -57,7 +57,7 @@ textarea {
 }
 
 ::selection {
-  background: rgba(180, 106, 44, 0.18);
+  background: rgba(180, 106, 44, 0.14);
 }
 
 .noise-overlay {

@@ -62,7 +62,7 @@ export function getStatusBadge(status: string) {
   }
   return {
     label: "待执行",
-    className: "border-[rgba(180,106,44,0.14)] bg-[rgba(180,106,44,0.04)] text-accent",
+    className: "border-[rgba(180,106,44,0.10)] bg-[rgba(180,106,44,0.025)] text-accent",
   };
 }
 
