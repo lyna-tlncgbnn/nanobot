@@ -23,3 +23,6 @@ tests/
 
 # nanobot 本地数据（运行时数据，不提交）
 workspace/
+
+# 配置文件（包含敏感信息，不提交）
+config.json

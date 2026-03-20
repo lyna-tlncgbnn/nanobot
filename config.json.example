@@ -2,7 +2,7 @@
   "agents": {
     "defaults": {
       "workspace": "./workspace",
-      "model": "qwen3.5-plus",
+      "model": "your-model-here",
       "maxTokens": 8192,
       "temperature": 0.1,
       "maxToolIterations": 40,
@@ -15,29 +15,29 @@
     "whatsapp": {
       "enabled": false,
       "bridgeUrl": "ws://localhost:3001",
-      "bridgeToken": "",
+      "bridgeToken": "your-token-here",
       "allowFrom": []
     },
     "telegram": {
       "enabled": false,
-      "token": "",
+      "token": "your-telegram-token",
       "allowFrom": [],
       "proxy": null,
       "replyToMessage": false
     },
     "discord": {
       "enabled": false,
-      "token": "",
+      "token": "your-discord-token",
       "allowFrom": [],
       "gatewayUrl": "wss://gateway.discord.gg/?v=10&encoding=json",
       "intents": 37377
     },
     "feishu": {
       "enabled": false,
-      "appId": "",
-      "appSecret": "",
-      "encryptKey": "",
-      "verificationToken": "",
+      "appId": "your-app-id",
+      "appSecret": "your-app-secret",
+      "encryptKey": "your-encrypt-key",
+      "verificationToken": "your-verification-token",
       "allowFrom": []
     },
     "mochat": {
@@ -54,8 +54,8 @@
       "watchLimit": 100,
       "retryDelayMs": 500,
       "maxRetryAttempts": 0,
-      "clawToken": "",
-      "agentUserId": "",
+      "clawToken": "your-claw-token",
+      "agentUserId": "your-agent-user-id",
       "sessions": [],
       "panels": [],
       "allowFrom": [],
@@ -68,26 +68,26 @@
     },
     "dingtalk": {
       "enabled": false,
-      "clientId": "",
-      "clientSecret": "",
+      "clientId": "your-client-id",
+      "clientSecret": "your-client-secret",
       "allowFrom": []
     },
     "email": {
       "enabled": false,
       "consentGranted": false,
-      "imapHost": "",
+      "imapHost": "your-imap-host",
       "imapPort": 993,
-      "imapUsername": "",
-      "imapPassword": "",
+      "imapUsername": "your-username",
+      "imapPassword": "your-password",
       "imapMailbox": "INBOX",
       "imapUseSsl": true,
-      "smtpHost": "",
+      "smtpHost": "your-smtp-host",
       "smtpPort": 587,
-      "smtpUsername": "",
-      "smtpPassword": "",
+      "smtpUsername": "your-username",
+      "smtpPassword": "your-password",
       "smtpUseTls": true,
       "smtpUseSsl": false,
-      "fromAddress": "",
+      "fromAddress": "your-email@example.com",
       "autoReplyEnabled": true,
       "pollIntervalSeconds": 30,
       "markSeen": true,
@@ -99,8 +99,8 @@
       "enabled": false,
       "mode": "socket",
       "webhookPath": "/slack/events",
-      "botToken": "",
-      "appToken": "",
+      "botToken": "your-bot-token",
+      "appToken": "your-app-token",
       "userTokenReadOnly": true,
       "replyInThread": true,
       "reactEmoji": "eyes",
@@ -113,95 +113,95 @@
       }
     },
     "qq": {
-      "enabled": true,
-      "appId": "102880978",
-      "secret": "mYK6sfSF2pdRF3rfTI7wlaPF5vlbRH8z",
+      "enabled": false,
+      "appId": "your-app-id",
+      "secret": "your-secret",
       "allowFrom": []
     }
   },
   "providers": {
     "custom": {
-      "apiKey": "sk-sp-834112fb5d6b4e3cac74cc3c66bdb713",
-      "apiBase": "https://coding.dashscope.aliyuncs.com/v1",
+      "apiKey": "your-api-key",
+      "apiBase": "your-api-base",
       "extraHeaders": null
     },
     "anthropic": {
-      "apiKey": "",
+      "apiKey": "your-anthropic-key",
       "apiBase": null, 
       "extraHeaders": null
     },
     "openai": {
-      "apiKey": "",
+      "apiKey": "your-openai-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "openrouter": {
-      "apiKey": "",
+      "apiKey": "your-openrouter-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "deepseek": {
-      "apiKey": "",
+      "apiKey": "your-deepseek-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "groq": {
-      "apiKey": "",
+      "apiKey": "your-groq-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "zhipu": {
-      "apiKey": "",
+      "apiKey": "your-zhipu-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "dashscope": {
-      "apiKey": "",
+      "apiKey": "your-dashscope-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "vllm": {
-      "apiKey": "",
+      "apiKey": "your-vllm-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "gemini": {
-      "apiKey": "",
+      "apiKey": "your-gemini-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "moonshot": {
-      "apiKey": "",
+      "apiKey": "your-moonshot-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "minimax": {
-      "apiKey": "",
+      "apiKey": "your-minimax-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "aihubmix": {
-      "apiKey": "",
+      "apiKey": "your-aihubmix-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "siliconflow": {
-      "apiKey": "",
+      "apiKey": "your-siliconflow-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "volcengine": {
-      "apiKey": "",
+      "apiKey": "your-volcengine-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "openaiCodex": {
-      "apiKey": "",
+      "apiKey": "your-codex-key",
       "apiBase": null,
       "extraHeaders": null
     },
     "githubCopilot": {
-      "apiKey": "",
+      "apiKey": "your-copilot-key",
       "apiBase": null,
       "extraHeaders": null
     }
@@ -217,7 +217,7 @@
   "tools": {
     "web": {
       "search": {
-        "apiKey": "",
+        "apiKey": "your-search-api-key",
         "maxResults": 5
       }
     },
@@ -225,16 +225,16 @@
       "timeout": 60
     },
     "browserAgent": {
-      "pythonPath": "F:\\browser-use\\.venv\\Scripts\\python.exe",
-      "scriptPath": "F:\\browser-use\\run_browser_agent.py",
-      "model": "qwen3.5-plus",
-      "apiKey": "sk-sp-834112fb5d6b4e3cac74cc3c66bdb713",
-      "apiBase": "https://coding.dashscope.aliyuncs.com/v1",
+      "pythonPath": "path/to/python",
+      "scriptPath": "path/to/script",
+      "model": "your-model",
+      "apiKey": "your-api-key",
+      "apiBase": "your-api-base",
       "extraHeaders": null,
       "timeout": 600,
-      "downloadDir": "F:\\nanobot\\workspace\\browser-use-downloads",
+      "downloadDir": "path/to/downloads",
       "headless": false,
-      "userDataDir": "C:\\Users\\tlncgbnn\\.config\\browseruse\\profiles\\default",  
+      "userDataDir": "path/to/user/data",  
       "cdpUrl": "http://localhost:9222"                                              
     },
     "restrictToWorkspace": false,
