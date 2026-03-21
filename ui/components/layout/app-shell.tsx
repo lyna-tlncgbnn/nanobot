@@ -263,8 +263,8 @@ export function AppShell() {
   };
 
   return (
-    <main className="noise-overlay h-screen overflow-hidden px-2 py-2 text-[12px] md:px-3 md:py-3">
-      <div className="mx-auto flex h-[calc(100vh-1rem)] max-w-[1800px] gap-2 overflow-hidden">
+    <main className="noise-overlay h-screen overflow-hidden text-[12px]">
+      <div className="flex h-screen overflow-hidden border border-[rgba(53,40,17,0.08)] bg-[rgba(252,251,247,0.96)]">
         <SidebarPanel
           sessions={sidebarSessions}
           activeSessionId={activeSessionId}
@@ -277,10 +277,10 @@ export function AppShell() {
           loading={sessionsQuery.isLoading}
         />
 
-        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[rgba(255,255,255,0.42)]">
           <div
             className={cn(
-              "grid min-h-0 flex-1 gap-2 overflow-hidden",
+              "grid min-h-0 flex-1 overflow-hidden",
               jobsPanelCollapsed
                 ? "xl:grid-cols-[minmax(0,1fr)_78px]"
                 : "xl:grid-cols-[minmax(0,1fr)_300px]",

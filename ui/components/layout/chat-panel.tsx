@@ -128,8 +128,8 @@ export function ChatPanel({
   }, [messages, pendingUserMessage, loadingHistory, error]);
 
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[18px] border border-border bg-panel px-3 py-3 shadow-[0_18px_56px_rgba(36,38,42,0.04)]">
-      <div className="flex shrink-0 items-center justify-between border-b border-border pb-2">
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-transparent px-3 py-3">
+      <div className="flex shrink-0 items-center justify-between border-b border-[rgba(53,40,17,0.08)] pb-2">
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
           Chat Surface
         </div>

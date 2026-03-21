@@ -126,7 +126,7 @@ export function JobsPanel({
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border border-border bg-panel px-3 py-3 shadow-[0_18px_56px_rgba(36,38,42,0.04)]",
+        "flex h-full min-h-0 flex-col overflow-hidden border-l border-[rgba(53,40,17,0.08)] bg-[rgba(250,248,243,0.78)] px-3 py-3",
         collapsed ? "w-[78px]" : "w-full",
       )}
     >

@@ -35,7 +35,7 @@ export function SidebarPanel({
   return (
     <aside
       className={cn(
-        "hidden h-full min-h-0 shrink-0 rounded-[18px] border border-border bg-panel px-3 py-3 shadow-[0_18px_56px_rgba(36,38,42,0.04)] lg:flex lg:flex-col lg:overflow-hidden",
+        "hidden h-full min-h-0 shrink-0 border-r border-[rgba(53,40,17,0.08)] bg-[rgba(250,248,243,0.78)] px-3 py-3 lg:flex lg:flex-col lg:overflow-hidden",
         collapsed ? "w-[78px]" : "w-[280px]",
       )}
     >
