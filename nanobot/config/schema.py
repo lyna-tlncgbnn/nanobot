@@ -311,7 +311,10 @@ class Config(BaseSettings):
     @property
     def workspace_path(self) -> Path:
         """Get expanded workspace path."""
-        return Path(self.agents.defaults.workspace).expanduser()
+        path = Path(self.agents.defaults.workspace).expanduser()
+        if not path.is_absolute():
+            path = Path.cwd() / path
+        return path
 
     def _match_provider(self, model: str | None = None) -> tuple["ProviderConfig | None", str | None]:
         """Match provider config and its registry name. Returns (config, spec_name)."""

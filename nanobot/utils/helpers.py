@@ -1,8 +1,8 @@
 """Utility functions for nanobot."""
 
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def ensure_dir(path: Path) -> Path:
@@ -19,22 +19,19 @@ def get_data_path() -> Path:
 def get_workspace_path(workspace: str | None = None) -> Path:
     """
     Get the workspace path.
-    
+
     Args:
-        workspace: Optional workspace path. Defaults to ./workspace or ~/.nanobot/workspace.
-    
+        workspace: Optional workspace path. Defaults to ./workspace.
+
     Returns:
         Expanded and ensured workspace path.
     """
     if workspace:
         path = Path(workspace).expanduser()
+        if not path.is_absolute():
+            path = Path.cwd() / path
     else:
-        # 优先使用项目根目录的 workspace
-        project_workspace = Path.cwd() / "workspace"
-        if project_workspace.exists():
-            path = project_workspace
-        else:
-            path = Path.home() / ".nanobot" / "workspace"
+        path = Path.cwd() / "workspace"
     return ensure_dir(path)
 
 
@@ -91,7 +88,6 @@ def truncate_string(s: str, max_len: int = 100, suffix: str = "...") -> str:
 
 def safe_filename(name: str) -> str:
     """Convert a string to a safe filename."""
-    # Replace unsafe characters
     unsafe = '<>:"/\\|?*'
     for char in unsafe:
         name = name.replace(char, "_")
@@ -101,10 +97,10 @@ def safe_filename(name: str) -> str:
 def parse_session_key(key: str) -> tuple[str, str]:
     """
     Parse a session key into channel and chat_id.
-    
+
     Args:
         key: Session key in format "channel:chat_id"
-    
+
     Returns:
         Tuple of (channel, chat_id)
     """
